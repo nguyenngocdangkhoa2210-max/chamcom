@@ -1,23 +1,18 @@
-name: Deploy trang web lên GitHub Pages
+name: Deploy Static Content
 
 on:
-  # Chạy workflow khi có hành động push vào nhánh main
   push:
-    branches: ["main"]
+    branches: ["main"] # Tự động chạy khi bạn push lên nhánh main
+  workflow_dispatch:     # Cho phép bấm nút chạy thủ công
 
-  # Cho phép bạn chạy workflow thủ công từ tab Actions
-  workflow_dispatch:
-
-# Thiết lập quyền hạn (BẮT BUỘC để sửa lỗi bạn gặp phải)
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Đảm bảo chỉ có một lần triển khai diễn ra tại một thời điểm
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -26,19 +21,18 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout mã nguồn
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Thiết lập GitHub Pages
-        uses: actions/configure-pages@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
 
-      # Nếu bạn có thư mục build (như 'dist' hoặc 'build'), hãy thay đổi path ở đây. 
-      # '.' nghĩa là triển khai toàn bộ thư mục gốc.
-      - name: Tải lên tài liệu (Upload artifact)
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.' 
+          # Triển khai toàn bộ nội dung trong thư mục gốc
+          path: '.'
 
-      - name: Triển khai lên GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
