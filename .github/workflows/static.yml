@@ -1,9 +1,9 @@
-name: Deploy Static Content
+name: Deploy Static Site
 
 on:
   push:
-    branches: ["main"] # Tự động chạy khi bạn push lên nhánh main
-  workflow_dispatch:     # Cho phép bấm nút chạy thủ công
+    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -24,14 +24,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Bước này cực kỳ quan trọng để bỏ qua Jekyll
       - name: Setup Pages
         uses: actions/configure-pages@v5
+        with:
+          enable_jekyll: false 
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Triển khai toàn bộ nội dung trong thư mục gốc
-          path: '.'
+          path: '.' # Thư mục chứa file index.html của bạn
 
       - name: Deploy to GitHub Pages
         id: deployment
