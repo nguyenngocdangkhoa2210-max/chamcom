@@ -1,0 +1,41 @@
+name: Deploy Static Site
+
+on:
+  push:
+    branches: ["main"] # Chạy khi bạn push code lên nhánh main
+  workflow_dispatch:     # Cho phép chạy thủ công từ web
+
+# PHẦN QUAN TRỌNG NHẤT: Sửa lỗi "Failed to get ID Token"
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Tránh việc triển khai chồng chéo
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout mã nguồn
+        uses: actions/checkout@v4
+
+      - name: Thiết lập Pages
+        uses: actions/configure-pages@v5
+
+      - name: Tải nội dung lên (Upload)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # '.' nghĩa là toàn bộ thư mục gốc. 
+          # Nếu code nằm trong thư mục 'src', hãy sửa thành 'src'
+          path: '.' 
+
+      - name: Triển khai lên GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
